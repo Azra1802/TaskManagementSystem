@@ -1,0 +1,33 @@
+﻿@model IEnumerable<TaskManagmentSystem.Models.TaskModel>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>
+            <strong>@item.Title</strong>
+            <div class="text-muted small">@item.Description</div>
+        </td>
+        <td>
+            <div class="status-badge  status-@item.Status.ToString().ToLower()">@item.Status</div>
+        </td>
+        <td>
+            <div class=" priority-@item.Priority.ToString().ToLower()">@item.Priority</div>
+        </td>
+        <td>
+            @(item.DueDate.HasValue? item.DueDate.Value.ToString("dd MMM yyyy") : "-")
+        </td>
+        <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+        <td>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary"
+                        onclick="openEditModal(@item.Id)">
+                    Edit
+                </button>
+                <button class="btn btn-outline-danger"
+                        onclick="openDeleteModal(@item.Id)">
+                    Delete
+                </button>
+            </div>
+        </td>
+    </tr>
+}

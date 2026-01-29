@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="home-hero">
+    <div class="container mt-5">
+        <div class="text-center">
+            <h1 class="fw-bold mb-3">Task Management System</h1>
+
+            <p class="text-muted mb-4">
+                A simple in-memory task management application.
+            </p>
+
+            <a asp-controller="Tasks"
+               asp-action="Index"
+               class="btn btn-primary btn-lg btn-new-task">
+                Go to tasks
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+﻿body {
+    background-color: #f8fafc;
+}
+
+.task-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+    border: none;
+}
+
+.table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+    .table thead th {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #6b7280;
+        border-bottom: none;
+    }
+
+    .table tbody tr {
+        background: #fff;
+        border-radius: 10px;
+    }
+
+    .table tbody td {
+        border-top: none;
+    }
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-todo {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.status-inprogress {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.priority-low {
+    color: #9ca3af;
+}
+
+.priority-medium {
+    color: #2563eb;
+}
+
+.priority-high {
+    color: #dc2626;
+    font-weight: 600;
+}
+.btn-group {
+    display: inline-flex;
+}
+.btn-outline-primary,
+.btn-outline-danger {
+    border-radius: 8px;
+}
+
+    .btn-outline-primary:hover {
+        background: #2563eb;
+        color: #fff;
+    }
+
+.home-hero {
+    padding: 80px 20px;
+}
+
+.text-end {
+    display: inline-flex;
+}
+
+.btn-new-task{
+    background-color: #50b2f3
+}

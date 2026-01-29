@@ -1,0 +1,259 @@
+﻿@model IEnumerable<TaskManagmentSystem.Models.TaskModel>
+
+@{
+    ViewData["Title"] = "Task Manager";
+}
+
+
+<div class="container mt-4">
+
+    <div class=" d-flex justify-content-between align-items-center mb-4">
+        <h1>My Tasks</h1>
+        <button class="btn btn-primary btn-new-task"
+                data-bs-toggle="modal"
+                data-bs-target="#createTaskModal">
+            + New Task
+        </button>
+    </div>
+
+    <div class="card task-card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        
+                        <th> Task</th>
+                        <th> @Html.DisplayNameFor(model => model.Status)</th>
+                        <th> @Html.DisplayNameFor(model => model.Priority)</th>
+                        <th> @Html.DisplayNameFor(model => model.DueDate)</th>
+                        <th> @Html.DisplayNameFor(model => model.CreatedAt)</th>
+                        <th ></th>
+                    </tr>
+                </thead>
+                <tbody id="taskTableBody">
+                    @await Html.PartialAsync("_TaskTableRows", Model)
+                </tbody>
+                   
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="modal fade" id="createTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @await Html.PartialAsync("_CreateTaskModal",
+            new TaskManagmentSystem.Models.TaskCreateVM())
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="editTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" id="editTaskModalContent">
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Delete task</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0">
+                    Are you sure you want to delete this task?
+                    <br />
+                    <small class="text-muted">This action cannot be undone.</small>
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">
+                    Delete
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+
+         document
+        .getElementById('createTaskModal')
+        .addEventListener('hidden.bs.modal', resetCreateModal);
+        
+        const apiUrl = '/api/tasks';
+
+         function closeCreateModal() {
+          const modalEl = document.getElementById('createTaskModal');
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          modal.hide();
+          document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+        } 
+         function validateTask(payload , str) {
+             console.log(str)
+            const errorEl = document.getElementById(str);
+            errorEl.style.display = 'none';
+            if (!payload.title || payload.title.trim() === '') {
+                errorEl.style.display = 'block';
+                return false;
+            }
+              if (!payload.description || payload.description.trim() === '') {
+                errorEl.style.display = 'block';
+                return false;
+            }
+            if (!payload.dueDate) {
+                errorEl.style.display = 'block';
+                return false;
+            }
+
+            return true;
+        }
+
+           function resetCreateModal() {
+            document.getElementById('create-title').value = '';
+            document.getElementById('create-description').value = '';
+            document.getElementById('create-priority').value = '1'; 
+            document.getElementById('create-dueDate').value = '';
+            document.getElementById('create-error').style.display = 'none';
+        }
+
+        async function createTask(payload) {
+            if (!validateTask(payload, 'create-error')) {
+            return;
+            }
+
+          try {
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+              throw new Error(`Server error: ${response.status}`);
+            }
+
+            await refreshTaskList();
+            closeCreateModal();
+            console.log('Task created successfully:');
+
+          } catch (error) {
+            console.error('Failed to create task:', error);
+            alert('Could not save task. Please try again.');
+          }
+        }
+
+        async function deleteTask(id) {
+            try {
+                const response = await fetch(`${apiUrl}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Delete failed');
+                }
+
+                await refreshTaskList();
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+
+        async function openEditModal(id) {
+            const html = await fetch(`/Tasks/EditModal/${id}`).then(r => r.text());
+            document.getElementById('editTaskModalContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('editTaskModal')).show();
+        }
+
+        async function editTask(id) {
+            const payload = {
+                id: id,
+                title: document.getElementById('edit-title').value,
+                description: document.getElementById('edit-description').value,
+                status: parseInt(document.getElementById('edit-status').value),
+                priority: parseInt(document.getElementById('edit-priority').value),
+                dueDate: document.getElementById('edit-dueDate').value 
+                 };
+
+             if (!validateTask(payload, 'edit-error')) {
+                 console.log("ovdje je")
+            return;
+            }
+
+            try {
+                const response = await fetch(`/api/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                await refreshTaskList();
+
+                const modalEl = document.getElementById('editTaskModal');
+                bootstrap.Modal.getInstance(modalEl).hide();
+
+            } catch (error) {
+                console.error('Failed to update task:', error);
+                alert('Could not save changes. Please try again.');
+            }
+        }
+
+
+          async function refreshTaskList() {
+              const html = await fetch('/Tasks/TaskTable').then(r => r.text());
+              document.getElementById('taskTableBody').innerHTML = html;
+            }
+
+                let taskIdToDelete = null;
+
+        function openDeleteModal(id) {
+            taskIdToDelete = id;
+            new bootstrap.Modal(
+                document.getElementById('deleteConfirmModal')
+            ).show();
+        }
+
+        document
+            .getElementById('confirmDeleteBtn')
+            .addEventListener('click', async () => {
+
+                if (!taskIdToDelete) return;
+
+                await fetch(`/api/tasks/${taskIdToDelete}`, {
+                    method: 'DELETE'
+                });
+
+                await refreshTaskList();
+
+                taskIdToDelete = null;
+
+                const modalEl = document.getElementById('deleteConfirmModal');
+                bootstrap.Modal.getInstance(modalEl).hide();
+                document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+            });
+
+    </script>
+
+}
