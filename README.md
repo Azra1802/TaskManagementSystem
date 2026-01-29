@@ -34,7 +34,7 @@ https://taskmanagmentsystem-production.up.railway.app
 **Steps**
  1.  Clone the repository:
   ```bash
-  git clone https://github.com/Azra1802/TaskManagmentSystem.git
+  git clone https://github.com/Azra1802/TaskManagementSystem.git
   ```
  2.  Restore dependencies:
   ```bash
